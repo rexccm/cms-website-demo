@@ -1106,6 +1106,19 @@ body > main {
   transform: skew(-20deg, -1deg); 
 }
 
+/* Pages */
+.page-description table, 
+.page-description table th, 
+.page-description table td { 
+  border: 1px solid var(--color-black); 
+  border-collapse: collapse; 
+  padding: 4px 8px; 
+}
+
+.page-description table { 
+  margin-inline: auto; 
+}
+
 /* Blogs */
 /* Article Card */
 .article-title { 
