@@ -39,7 +39,7 @@ export default function SearchPage() {
 
   return (
     <div className="search page-section">
-      <h2>Search</h2>
+      <h2 className="section-heading">Search</h2>
       <SearchForm>
         {({inputRef}) => (
           <>
