@@ -2,12 +2,16 @@ import {Await, useLoaderData, Link} from 'react-router';
 import {Suspense} from 'react';
 import {Image} from '@shopify/hydrogen';
 import {ProductItem} from '~/components/ProductItem';
+import {AboutUs} from '~/components/AboutUs'; 
+import {Events} from '~/components/Events'; 
+import {HeroCarousel} from '~/components/HeroCarousel'; 
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'Hydrogen | Home'}];
+  /* return [{title: 'Hydrogen | Home'}]; */
+  return [{title: 'Hong Kong Obesity Society'}];
 };
 
 /**
@@ -29,13 +33,38 @@ export async function loader(args) {
  * @param {Route.LoaderArgs}
  */
 async function loadCriticalData({context}) {
-  const [{collections}] = await Promise.all([
-    context.storefront.query(FEATURED_COLLECTION_QUERY),
+  const [{collections}, aboutImageResult, shopResult, shopResultZhTw, heroSlidesResult, aimsResult, eventListResult] = await Promise.all([
+    context.storefront.query(FEATURED_COLLECTION_QUERY), 
     // Add other queries here, so that they are loaded in parallel
-  ]);
+    context.storefront.query(ABOUT_IMAGE_QUERY), 
+    context.storefront.query(SHOP_SUMMARY_QUERY), 
+    context.storefront.query(SHOP_SUMMARY_ZH_TW_QUERY), 
+    context.storefront.query(HERO_SLIDES_QUERY), 
+    context.storefront.query(AIMS_QUERY),
+    context.storefront.query(EVENT_LIST_QUERY, {
+      variables: {
+        blogHandle: 'events',
+        first: 4,
+        language: context.storefront.i18n.language,
+      },
+    }), 
+  ]); 
+
+  const aboutImage = aboutImageResult?.shop?.metafield?.reference?.image ?? null;
+  const shopSummary = shopResult?.shop?.metafield?.value ?? '';
+  const shopSummaryZhTw = shopResultZhTw?.shop?.metafield?.value ?? '';
+  const heroSlides = heroSlidesResult?.metaobjects?.nodes ?? []; 
+  const aims = aimsResult?.metaobjects?.nodes ?? [];
+  const eventList = eventListResult?.blog?.articles?.nodes ?? []; 
 
   return {
     featuredCollection: collections.nodes[0],
+    aboutImage, 
+    shopSummary, 
+    shopSummaryZhTw, 
+    heroSlides, 
+    aims, 
+    eventList, 
   };
 }
 
@@ -59,13 +88,30 @@ function loadDeferredData({context}) {
   };
 }
 
-export default function Homepage() {
+export default function Homepage() { 
   /** @type {LoaderReturnData} */
   const data = useLoaderData();
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
+      {/* Hero Carousel */}
+      <div>
+        <HeroCarousel heroSlides={data.heroSlides} />
+        
+        {/* 
+          {data.heroSlides.maps((heroSlide, index) => { 
+            <p>{index}</p>
+          })}
+        */}
+      </div>
+
+      {/* Events */}
+      <Events eventList={data.eventList} />
+      
+      {/* About Us */}
+      <AboutUs aboutImage={data.aboutImage} shopSummary={data.shopSummary} shopSummaryZhTw={data.shopSummaryZhTw} aims={data.aims} />
+      
+      {/* <FeaturedCollection collection={data.featuredCollection} /> */}
+      {/* <RecommendedProducts products={data.recommendedProducts} /> */}
     </div>
   );
 }
@@ -88,7 +134,7 @@ function FeaturedCollection({collection}) {
           <Image data={image} sizes="100vw" />
         </div>
       )}
-      <h1>{collection.title}</h1>
+      <h2 className="section-heading">{collection.title}</h2>
     </Link>
   );
 }
@@ -167,6 +213,150 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     products(first: 4, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...RecommendedProduct
+      }
+    }
+  }
+`;
+
+/* Custom GraphQL Queries */
+/* About Us */
+/* Image */
+const ABOUT_IMAGE_QUERY = `#graphql
+  query AboutImage($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    shop {
+      metafield(namespace: "custom", key: "hkos_about_us_image") {
+        key
+        value
+        reference {
+          ... on MediaImage {
+            image {
+              url
+              altText
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+`; 
+
+/* Description */
+/* English */
+const SHOP_SUMMARY_QUERY = `#graphql
+  query ShopSummary($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    shop {
+      metafield(namespace: "custom", key: "hkos_about_us_description") {
+        value
+      }
+    }
+  }
+`; 
+
+/* Traditional Chinese */
+const SHOP_SUMMARY_ZH_TW_QUERY = `#graphql
+  query ShopSummaryZhTw($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    shop {
+      metafield(namespace: "custom", key: "hkos_about_us_description_zh_tw") {
+        value
+      }
+    }
+  }
+`; 
+
+/* Metaobjects */
+/* Hero Slides */
+const HERO_SLIDES_QUERY = `#graphql
+  query HeroSlides($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    metaobjects(type: "hero_slide", first: 250, reverse: true) { 
+      nodes {
+        id
+        handle
+        fields {
+          key
+          value
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+/* Aims */
+const AIMS_QUERY = `#graphql
+  query Metaobjects($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    metaobjects(type: "aims", first: 250) {
+      nodes {
+        id
+        handle
+        fields {
+          key
+          value
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+/* Event List */
+const EVENT_LIST_QUERY = `#graphql
+  query EventList(
+    $language: LanguageCode
+    $blogHandle: String!
+    $first: Int, 
+  ) @inContext(language: $language) {
+    blog(handle: $blogHandle) {
+      title
+      handle
+      articles(
+        first: $first, 
+        reverse: true
+      ) {
+        nodes {
+          id
+          title
+          contentHtml
+          handle
+          publishedAt
+          excerpt
+          image {
+            url
+            altText
+            width
+            height
+          }
+          title_zh_tw: metafield(namespace: "custom", key: "title_zh_tw") {
+            value
+          }
+          content_zh_tw: metafield(namespace: "custom", key: "content_zh_tw") {
+            value
+          }
+        }
       }
     }
   }

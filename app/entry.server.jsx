@@ -21,6 +21,9 @@ export default async function handleRequest(
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.shopify.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.shopify.com'], 
+      connectSrc: ["'self'", 'https://monorail-edge.shopifysvc.com'], 
     },
   });
 

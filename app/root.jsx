@@ -9,11 +9,13 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
-import favicon from '~/assets/favicon.svg';
+/* import favicon from '~/assets/favicon.svg'; */
+import favicon from '~/assets/favicon.ico';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import {PageLayout} from './components/PageLayout';
+import React, { useState } from 'react';
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -97,7 +99,7 @@ export async function loader(args) {
 async function loadCriticalData({context}) {
   const {storefront} = context;
 
-  const [header] = await Promise.all([
+  const [header, socialMediaData] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
@@ -105,9 +107,18 @@ async function loadCriticalData({context}) {
       },
     }),
     // Add other queries here, so that they are loaded in parallel
+    storefront.query(SOCIAL_MEDIA_QUERY, {
+      variables: { 
+        country: storefront.i18n.country,
+        language: storefront.i18n.language,
+      },
+    }),
   ]);
 
-  return {header};
+  return { 
+    header, 
+    socialMedia: socialMediaData?.metaobjects?.nodes || []
+  };
 }
 
 /**
@@ -144,9 +155,13 @@ function loadDeferredData({context}) {
  */
 export function Layout({children}) {
   const nonce = useNonce();
+  const [lang, setLang] = useState("zh-TW"); 
+
+  const data = useRouteLoaderData('root');
+  const socialMedias = data?.socialMedia || []; 
 
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -156,7 +171,32 @@ export function Layout({children}) {
         <Links />
       </head>
       <body>
-        {children}
+        {/* {children} */}
+        <div id="sub-nav">
+          <nav id="social-medias">
+            {socialMedias.map((entry, index) => {
+              const getField = (key) => entry.fields.find(f => f.key === key)?.value;
+              const iconField = entry.fields.find(f => f.key === 'icon'); 
+              const iconData = iconField?.reference?.image; 
+
+              return (
+                <a className="social-media" href={getField("url")} target="_blank" rel="noreferrer noopener">
+                  <img id='social-media-icon' src={iconData?.url} alt={iconData?.altText || 'icon'} />
+                </a>
+              ); 
+            })}
+          </nav>
+          <nav id="lang-switcher">
+            <button onClick={() => setLang("zh-TW")}>繁</button>
+            <button onClick={() => setLang("en")}>Eng</button>
+          </nav>
+        </div>
+        {React.Children.map(children, child => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child, { lang, setLang });
+          }
+          return child;
+        })}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
@@ -199,7 +239,7 @@ export function ErrorBoundary() {
 
   return (
     <div className="route-error">
-      <h1>Oops</h1>
+      <h2 className="section-heading">Oops</h2>
       <h2>{errorStatus}</h2>
       {errorMessage && (
         <fieldset>
@@ -209,6 +249,35 @@ export function ErrorBoundary() {
     </div>
   );
 }
+
+/* GraphQL Queries */
+/* Metaobjects */
+/* Social Medias */
+const SOCIAL_MEDIA_QUERY = `#graphql
+  query SocialMedias($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    metaobjects(type: "social_media", first: 250) {
+      nodes {
+        id
+        handle
+        fields {
+          key
+          value
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 /** @typedef {LoaderReturnData} RootLoader */
 

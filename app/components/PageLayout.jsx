@@ -9,6 +9,7 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+import searchIcon from '~/assets/search-icon.svg'; 
 
 /**
  * @param {PageLayoutProps}
@@ -66,7 +67,7 @@ function SearchAside() {
   return (
     <Aside type="search" heading="SEARCH">
       <div className="predictive-search">
-        <br />
+        {/* <br /> */}
         <SearchFormPredictive>
           {({fetchResults, goToSearch, inputRef}) => (
             <>
@@ -79,8 +80,10 @@ function SearchAside() {
                 type="search"
                 list={queriesDatalistId}
               />
-              &nbsp;
-              <button onClick={goToSearch}>Search</button>
+              <button onClick={goToSearch}>
+                {/* Search */}
+                <img src={searchIcon} />
+              </button>
             </>
           )}
         </SearchFormPredictive>
@@ -125,12 +128,15 @@ function SearchAside() {
                 />
                 {term.current && total ? (
                   <Link
-                    onClick={closeSearch}
+                    className="search-all h5" 
+                    onClick={closeSearch} 
                     to={`${SEARCH_ENDPOINT}?q=${term.current}`}
                   >
+                    <img src={searchIcon} />
                     <p>
                       View all results for <q>{term.current}</q>
-                      &nbsp; →
+                      {/* &nbsp; → */}
+                      
                     </p>
                   </Link>
                 ) : null}

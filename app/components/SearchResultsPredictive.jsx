@@ -96,7 +96,8 @@ function SearchResultsPredictiveArticles({term, articles, closeSearch}) {
  */
 function SearchResultsPredictiveCollections({term, collections, closeSearch}) {
   if (!collections.length) return null;
-
+  return null; 
+  {/* 
   return (
     <div className="predictive-search-result" key="collections">
       <h5>Collections</h5>
@@ -129,6 +130,7 @@ function SearchResultsPredictiveCollections({term, collections, closeSearch}) {
       </ul>
     </div>
   );
+  */}
 }
 
 /**

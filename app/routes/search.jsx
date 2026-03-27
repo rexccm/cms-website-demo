@@ -38,8 +38,8 @@ export default function SearchPage() {
   if (type === 'predictive') return null;
 
   return (
-    <div className="search">
-      <h1>Search</h1>
+    <div className="search page-section">
+      <h2>Search</h2>
       <SearchForm>
         {({inputRef}) => (
           <>

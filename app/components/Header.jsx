@@ -2,16 +2,21 @@ import {Suspense} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
+import logo from '~/assets/logo-with-name.png'; 
+import searchIcon from '~/assets/search-icon.svg'; 
 
 /**
  * @param {HeaderProps}
  */
 export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
-  const {shop, menu} = header;
+  const {shop, menu} = header; 
   return (
     <header className="header">
       <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
+        {/* <strong>{shop.name}</strong> */}
+        {/* <img className="logo" src={header.shop.brand?.logo?.image?.url} alt={header.shop.brand?.logo?.image?.altText} /> */}
+        <img className="logo" src={logo} />
+        <h1 id="site-title">Hong Kong Obesity Society</h1>
       </NavLink>
       <HeaderMenu
         menu={menu}
@@ -48,7 +53,7 @@ export function HeaderMenu({
           end
           onClick={close}
           prefetch="intent"
-          style={activeLinkStyle}
+          /* style={activeLinkStyle} */
           to="/"
         >
           Home
@@ -71,10 +76,18 @@ export function HeaderMenu({
             key={item.id}
             onClick={close}
             prefetch="intent"
-            style={activeLinkStyle}
+            /* style={activeLinkStyle} */
             to={url}
           >
-            {item.title}
+            {/* Switch */}
+            {item.title === 'About' && <><span className="en">About</span><span className="zh-TW">關於我們</span></>}
+            {item.title === 'Donation' && <><span className="en">Donation</span><span className="zh-TW">捐助支持</span></>}
+            {item.title === 'Events' && <><span className="en">Events</span><span className="zh-TW">活動資訊</span></>}
+            {item.title === 'Membership' && <><span className="en">Membership</span><span className="zh-TW">會員申請</span></>}
+            {item.title === 'Resources' && <><span className="en">Resources</span><span className="zh-TW">相關資源</span></>}
+            {item.title === 'Contact' && <><span className="en">Contact</span><span className="zh-TW">聯絡我們</span></>}
+            {/* Else */}
+            {!['About', 'Donation', 'Events', 'Membership', 'Resources', 'Contact'].includes(item.title) && item.title}
           </NavLink>
         );
       })}
@@ -90,14 +103,18 @@ function HeaderCtas({isLoggedIn, cart}) {
     <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
       <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
+        {/* 
         <Suspense fallback="Sign in">
           <Await resolve={isLoggedIn} errorElement="Sign in">
             {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
           </Await>
         </Suspense>
+        */}
       </NavLink>
       <SearchToggle />
-      <CartToggle cart={cart} />
+      {/* 
+        <CartToggle cart={cart} />
+      */}
     </nav>
   );
 }
@@ -109,7 +126,7 @@ function HeaderMenuMobileToggle() {
       className="header-menu-mobile-toggle reset"
       onClick={() => open('mobile')}
     >
-      <h3>☰</h3>
+      <span></span>
     </button>
   );
 }
@@ -117,8 +134,9 @@ function HeaderMenuMobileToggle() {
 function SearchToggle() {
   const {open} = useAside();
   return (
-    <button className="reset" onClick={() => open('search')}>
-      Search
+    <button id="search-btn" className="reset" onClick={() => open('search')}>
+      {/* Search */}
+      <img src={searchIcon} />
     </button>
   );
 }

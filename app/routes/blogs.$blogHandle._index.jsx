@@ -2,12 +2,13 @@ import {Link, useLoaderData} from 'react-router';
 import {Image, getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {RichText} from '@shopify/hydrogen'; 
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = ({data}) => {
-  return [{title: `Hydrogen | ${data?.blog.title ?? ''} blog`}];
+  return [{title: `${data?.blog.title ?? ''}`}];
 };
 
 /**
@@ -66,26 +67,63 @@ function loadDeferredData({context}) {
   return {};
 }
 
+function getPlainText(input) {
+  if (!input) return '';
+  
+  if (input.startsWith('{') && input.includes('"type":"root"')) {
+    try {
+      const json = JSON.parse(input);
+      return extractTextFromJson(json);
+    } catch (e) {
+      return '';
+    }
+  }
+  
+  return input
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractTextFromJson(node) {
+  if (node.type === 'text') return node.value || '';
+  if (node.children) {
+    return node.children.map(extractTextFromJson).join('');
+  }
+  return '';
+}
+
 export default function Blog() {
   /** @type {LoaderReturnData} */
   const {blog} = useLoaderData();
   const {articles} = blog;
-
+  
   return (
-    <div className="blog">
-      <h1>{blog.title}</h1>
+    <section className="blog page-section">
+      <div className="section-header">
+        <h2 className="section-heading">
+          {blog.title == 'Events' && 
+            <>
+              <span className="en">Events</span>
+              <span className="zh-TW">活動資訊</span>
+            </>
+          }
+        </h2>
+      </div>
       <div className="blog-grid">
         <PaginatedResourceSection connection={articles}>
           {({node: article, index}) => (
             <ArticleItem
               article={article}
               key={article.id}
-              loading={index < 2 ? 'eager' : 'lazy'}
+              loading={index < 2 ? 'eager' : 'lazy'} 
+              index={index}
             />
           )}
         </PaginatedResourceSection>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -95,28 +133,56 @@ export default function Blog() {
  *   loading?: HTMLImageElement['loading'];
  * }}
  */
-function ArticleItem({article, loading}) {
+function ArticleItem({article, loading, index}) { 
+  /* 
+    const publishedAt = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(article.publishedAt));
+  */
+
   const publishedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'numeric',
     day: 'numeric',
   }).format(new Date(article.publishedAt));
+
+  const enSummary = getPlainText(article.contentHtml).substring(0, 100) + '...';
+  const zhSummary = article.content_zh_tw?.value 
+    ? getPlainText(article.content_zh_tw.value).substring(0, 80) + '...'
+    : '';
+
   return (
-    <div className="blog-article" key={article.id}>
-      <Link to={`/blogs/${article.blog.handle}/${article.handle}`}>
+    <div className="blog-article row" key={article.id}>
+      <div className="index">{index + 1}</div>
+      <Link className="row" to={`/blogs/${article.blog.handle}/${article.handle}`}>
         {article.image && (
-          <div className="blog-article-image">
-            <Image
-              alt={article.image.altText || article.title}
-              aspectRatio="3/2"
-              data={article.image}
-              loading={loading}
-              sizes="(min-width: 768px) 50vw, 100vw"
-            />
-          </div>
+          <figure>
+            <div className="blog-article-image">
+              <Image
+                alt={article.image.altText || article.title}
+                aspectRatio="3/2"
+                data={article.image} 
+                loading={loading} 
+                /* sizes="(min-width: 768px) 50vw, 100vw" */
+              />
+            </div>
+          </figure>
         )}
-        <h3>{article.title}</h3>
-        <small>{publishedAt}</small>
+        <div className="blog-article-main">
+          <div className="article-header">
+            <h3 className="article-title">
+              <span className="en">{article.title}</span>
+              <span className="zh-TW">{article.title_zh_tw? article.title_zh_tw.value : article.title}</span>
+            </h3>
+            <time>{publishedAt}</time>
+          </div>
+          <article className="blog-content">
+            <span className="article-summary en">{enSummary}</span>
+            <span className="article-summary zh-TW">{zhSummary? zhSummary : enSummary}</span>
+          </article>
+        </div>
       </Link>
     </div>
   );
@@ -143,7 +209,8 @@ const BLOGS_QUERY = `#graphql
         first: $first,
         last: $last,
         before: $startCursor,
-        after: $endCursor
+        after: $endCursor, 
+        reverse: true
       ) {
         nodes {
           ...ArticleItem
@@ -164,6 +231,7 @@ const BLOGS_QUERY = `#graphql
       name
     }
     contentHtml
+    excerpt
     handle
     id
     image {
@@ -175,6 +243,12 @@ const BLOGS_QUERY = `#graphql
     }
     publishedAt
     title
+    title_zh_tw: metafield(namespace: "custom", key: "title_zh_tw") {
+      value
+    }
+    content_zh_tw: metafield(namespace: "custom", key: "content_zh_tw") {
+      value
+    }
     blog {
       handle
     }

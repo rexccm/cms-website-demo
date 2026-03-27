@@ -1,6 +1,8 @@
 import {useLoaderData} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {RichText} from '@shopify/hydrogen'; 
+import { useState, useEffect } from 'react'; 
 
 /**
  * @type {Route.MetaFunction}
@@ -75,30 +77,93 @@ function loadDeferredData({context}) {
 export default function Article() {
   /** @type {LoaderReturnData} */
   const {article} = useLoaderData();
-  const {title, image, contentHtml, author} = article;
+  const {title, title_zh_tw, image, contentHtml, content_zh_tw, author} = article;
 
+  const [hide, setHide] = useState(true); 
+
+  {/*
   const publishedDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   }).format(new Date(article.publishedAt));
+  */}
+  
+  const publishedDate = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).format(new Date(article.publishedAt));
 
-  return (
-    <div className="article">
-      <h1>
-        {title}
-        <div>
-          <time dateTime={article.publishedAt}>{publishedDate}</time> &middot;{' '}
-          <address>{author?.name}</address>
+  return ( 
+    <>
+      <section className="article article-page page-section row">
+        {/* Article Image */}
+        <button className="article-image" onClick={(e) => setHide(false)}>
+          <figure>
+            {image && 
+              <Image 
+                aspectRatio="auto" 
+                data={image} 
+                sizes="240px" 
+                loading="eager" 
+              />
+            }
+          </figure>
+        </button>
+
+        {/* Article Main */}
+        <div className="article-main">
+          {/* Article Header */}
+          <div className="section-header row">
+            <h2 className="section-heading">
+              {title && <span className="en">{title}</span>}
+              {<span className="zh-TW">{title_zh_tw? title_zh_tw.value : title}</span>}
+            </h2>
+            <time dateTime={article.publishedAt}>{publishedDate}</time>
+            {/* <address>{author?.name}</address> */}
+          </div>
+
+          {/* Article Content */}
+          <article className="blog-content">
+            {contentHtml && 
+              <span 
+                dangerouslySetInnerHTML={{__html: contentHtml}}
+                className="en" 
+              />
+            }
+            {content_zh_tw? 
+              <span className="zh-TW">
+                <RichText data={content_zh_tw.value} />
+              </span> : 
+              <span 
+                dangerouslySetInnerHTML={{__html: contentHtml}}
+                className="zh-TW" 
+              />
+            }
+          </article>
         </div>
-      </h1>
-
-      {image && <Image data={image} sizes="90vw" loading="eager" />}
-      <div
-        dangerouslySetInnerHTML={{__html: contentHtml}}
-        className="article"
-      />
-    </div>
+      </section>
+      
+      {/* Popup */}
+      <section className={"popup " + (hide && "hide")}>
+        <div className="popup-modal">
+          <div className="popup-header">
+            <button className="close" onClick={(e) => setHide(true)}></button>
+          </div>
+          <figure className="popup-main">
+            {image && 
+              <Image 
+                aspectRatio="auto" 
+                data={image} 
+                /* sizes="720px" */
+                loading="eager" 
+              />
+            }
+          </figure>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -126,6 +191,14 @@ const ARTICLE_QUERY = `#graphql
           url
           width
           height
+        }
+        title_zh_tw: metafield(namespace: "custom", key: "title_zh_tw") {
+          value
+          type
+        }
+        content_zh_tw: metafield(namespace: "custom", key: "content_zh_tw") {
+          value
+          type
         }
         seo {
           description

@@ -5,7 +5,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
  * @type {Route.MetaFunction}
  */
 export const meta = ({data}) => {
-  return [{title: `Hydrogen | ${data?.page.title ?? ''}`}];
+  return [{title: `${data?.page.title ?? ''}`}];
 };
 
 /**
@@ -67,12 +67,37 @@ export default function Page() {
 
   return (
     <div className="page">
-      <header>
-        <h1>{page.title}</h1>
-      </header>
-      <main dangerouslySetInnerHTML={{__html: page.body}} />
+      <section id="page-header" className="page-section">
+        <h2 className="section-heading">
+          {page.title == 'About' && <><span className="en">About</span><span className="zh-TW">關於我們</span></>}
+          {page.title == 'Donation' && <><span className="en">Donation</span><span className="zh-TW">捐助支持</span></>}
+          {page.title == 'Membership' && <><span className="en">Membership</span><span className="zh-TW">會員申請</span></>}
+          {page.title == 'Resources' && <><span className="en">Resources</span><span className="zh-TW">相關資源</span></>}
+          {page.title == 'Contact' && <><span className="en">Contact</span><span className="zh-TW">聯絡我們</span></>}
+
+        </h2>
+        {/* <p>Page handle: {page.handle}</p> */}
+        <article className="page-description" dangerouslySetInnerHTML={{__html: page.body}} />
+      </section>
+      <section id="page-section" className="page-main">
+        {page.handle == 'about' && 
+          <></>
+        }
+        {page.handle == 'donation' && 
+          <></>
+        }
+        {page.handle == 'membership' && 
+          <></>
+        }
+        {page.handle == 'resources' && 
+          <></>
+        }
+        {page.handle == 'contact' && 
+          <></>
+        }
+      </section>
     </div>
-  );
+  ); 
 }
 
 const PAGE_QUERY = `#graphql
