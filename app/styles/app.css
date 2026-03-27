@@ -332,6 +332,14 @@ button.reset:hover:not(:has(> *)) {
   margin-bottom: 20px; 
 }
 
+.predictive-search-form button { 
+  transition: all .3s; 
+}
+
+.predictive-search-form button:hover { 
+  background-color: var(--accent-color-2); 
+}
+
 .predictive-search-result {
   margin-bottom: 2rem;
 }
@@ -1022,12 +1030,6 @@ aside .header-menu-item {
   margin-block: 0 20px; 
 }
 
-.predictive-search-result ul { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
-}
-
 /* Search all button */
 .search-all { 
   display: flex; 
@@ -1035,6 +1037,11 @@ aside .header-menu-item {
   border-radius: .5rem; 
   padding: .75rem 1rem; 
   background-color: var(--accent-color-1); 
+  transition: all .3s; 
+}
+
+.search-all:hover { 
+  background-color: var(--accent-color-2); 
 }
 
 .search-all * { 
@@ -1053,10 +1060,6 @@ aside .header-menu-item {
 }
 
 /* Search Page */
-.search form input { 
-  width: 100%; 
-}
-
 .search-result .search-results-item a:after { 
   width: 0; 
 }

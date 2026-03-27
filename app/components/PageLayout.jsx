@@ -75,11 +75,12 @@ function SearchAside() {
                 name="q"
                 onChange={fetchResults}
                 onFocus={fetchResults}
-                placeholder="Search"
+                placeholder=""
                 ref={inputRef}
                 type="search"
                 list={queriesDatalistId}
               />
+              
               <button onClick={goToSearch}>
                 {/* Search */}
                 <img src={searchIcon} />

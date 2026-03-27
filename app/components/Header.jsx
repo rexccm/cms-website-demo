@@ -56,7 +56,8 @@ export function HeaderMenu({
           /* style={activeLinkStyle} */
           to="/"
         >
-          Home
+          <span className="en">Home</span>
+          <span className="zh-TW">主頁</span>
         </NavLink>
       )}
       {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
