@@ -128,7 +128,7 @@ export default function Page() {
           <>
             {/* Real API Endpoint: https://formsubmit.co/info@hkobesity.com */}
             {/* For testing: https://formsubmit.co/ccm.rex17@gmail.com */}
-            <p>The following use email ccm.rex17@gmail.com for tesing: </p>
+            <p>The following use email ccm.rex17@gmail.com for testing: </p>
             <form id="contact-form" action="https://formsubmit.co/ccm.rex17@gmail.com" method="POST">
               {/* Form Fields */}
               <div className="row">
