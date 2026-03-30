@@ -682,6 +682,19 @@ h6, h6 *, .h6, .h6 * {
   font-weight: 400; 
 }
 
+/* Buttons */
+.primary-button { 
+  background-color: var(--accent-color-1); 
+  border-radius: .5rem; 
+  border: none; 
+  padding: .75rem 1rem; 
+  transition: all .3s; 
+}
+
+.primary-button:hover { 
+  background-color: var(--accent-color-2); 
+}
+
 /* Localization */
 .en, 
 .zh-TW, 
@@ -1559,6 +1572,43 @@ html:has(.popup:not(.hide)) {
 }
 
 /* Event Listing Page */
+
+/* Contact Form */
+#contact-form { 
+  width: 100%; 
+  max-width: 460px; 
+}
+
+#contact-form .row { 
+  flex-wrap: wrap; 
+}
+
+.field { 
+  margin-right: 20px; 
+  flex: 1; 
+}
+
+.field label { 
+  display: flex; 
+}
+
+.field:last-child { 
+  margin-right: 0; 
+}
+
+.field textarea { 
+  width: 100%; 
+  padding: 0; 
+}
+
+.submit-row { 
+  margin-top: 20px; 
+}
+
+#contact-form [type="submit"] { 
+  width: 100%; 
+  /* max-width: 445px; */
+}
 
 /* Footer */
 .footer { 
