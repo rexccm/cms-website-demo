@@ -129,28 +129,28 @@ export default function Page() {
             {/* Real API Endpoint: https://formsubmit.co/info@hkobesity.com */}
             {/* For testing: https://formsubmit.co/ccm.rex17@gmail.com */}
             <p>The following use email ccm.rex17@gmail.com for tesing: </p>
-            <form id="contact-form" action="https://formsubmit.co/info@hkobesity.com" method="POST">
+            <form id="contact-form" action="https://formsubmit.co/ccm.rex17@gmail.com" method="POST">
               {/* Form Fields */}
               <div className="row">
                 <div className="field">
                   <label for="name">Name: </label>
-                  <input type="text" id="name" name="Name" required></input>
+                  <input type="text" id="name" name="Name"></input>
                 </div>
                 <div className="field">
                   <label for="phone">Phone: </label>
-                  <input type="tel" id="phone" name="Phone" required></input>
+                  <input type="tel" id="phone" name="Phone"></input>
                 </div>
               </div>
               <div className="row">
                 <div className="field">
                   <label for="email">Email: </label>
-                  <input type="email" id="email" name="Email" required></input>
+                  <input type="email" id="email" name="Email"></input>
                 </div>
               </div>
               <div className="row">
                 <div className="field">
                   <label for="content">Content: </label>
-                  <textarea id="content" name="Content" rows="4" cols="53"></textarea>
+                  <textarea id="content" name="Content" rows="4" cols="53" required></textarea>
                 </div>
               </div>
 
